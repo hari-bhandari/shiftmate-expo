@@ -40,7 +40,7 @@ const Home = () => {
             webViewRef?.current?.postMessage("Hi to React - from React native");
         }
     };
-    const uri= 'http://192.168.1.79:3000';
+    const uri= 'https://shiftmate-phi.vercel.app';
 
     return (
         <AutoHeightWebView
