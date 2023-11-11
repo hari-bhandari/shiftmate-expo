@@ -40,11 +40,11 @@ const Home = () => {
             webViewRef?.current?.postMessage("Hi to React - from React native");
         }
     };
-    const uri= 'https://shiftmate-phi.vercel.app';
+    const uri= 'http://192.168.1.79:3000';
 
     return (
         <AutoHeightWebView
-            style={{ width: Dimensions.get('window').width - 15, marginTop: 35 }}
+            style={{ width: Dimensions.get('window').width - 15, marginTop: 35, marginBottom: 10 }}
             customScript={`localStorage.setItem('yourKey', 'true');`}
 
             onSizeUpdated={size => console.log(size.height)}
@@ -52,7 +52,8 @@ const Home = () => {
             source={{
                 uri
 
-            }}            scalesPageToFit={true}
+            }}
+            scalesPageToFit={true}
             viewportContent={'width=device-width, user-scalable=no'}
             geolocationEnabled={true}
             javaScriptEnabled={true}
@@ -61,6 +62,7 @@ const Home = () => {
             originWhitelist={['*']}
             onMessage={handleMessage}
             allowFileAccess={true}
+
             allowsInlineMediaPlayback={true}
             mediaCapturePermissionGrantType={'grant'}
             allowUniversalAccessFromFileURLs={true}
