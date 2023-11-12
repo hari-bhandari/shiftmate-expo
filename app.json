@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "shiftmate-expo",
-    "slug": "shiftmate-expo",
+    "name": "shiftmate",
+    "slug": "shiftmate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -29,10 +29,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "shiftmate.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f47e8b6f-988d-411f-ae05-07f00f2d4e0e"
+      }
+    },
+    "owner": "2012bhandar"
   }
 }
