@@ -6,4 +6,4 @@ export const OUTGOING_MESSAGE_TYPES = {
     EXPO_PUSH_TOKEN: 'EXPO_PUSH_TOKEN',
 };
 
-export const URI = 'http://192.168.1.79:3000';
+export const URI = 'https://shiftmate-phi.vercel.app';

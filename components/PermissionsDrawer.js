@@ -1,35 +1,141 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Switch, TouchableOpacity } from 'react-native';
-import { Modal, Text } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Switch, TouchableOpacity, Animated, Linking, Alert, Platform } from 'react-native';
+import { Divider, Modal, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Camera from 'expo-camera';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 
 const PermissionDrawer = () => {
     const [visible, setVisible] = useState(false);
     const [isCameraEnabled, setIsCameraEnabled] = useState(false);
     const [isLocationEnabled, setIsLocationEnabled] = useState(false);
+    const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+    const rotate = useState(new Animated.Value(0))[0];
 
-    // Toggle Handlers
-    const toggleCamera = () => setIsCameraEnabled(!isCameraEnabled);
-    const toggleLocation = () => setIsLocationEnabled(!isLocationEnabled);
+    // Check and request permissions
+    const checkPermission = async (permissionType) => {
+        try {
+            let status;
+            if (permissionType === 'camera') {
+                ({ status } = await Camera.getCameraPermissionsAsync());
+            } else if (permissionType === 'location') {
+                ({ status } = await Location.getForegroundPermissionsAsync());
+            } else if (permissionType === 'notification') {
+                ({ status } = await Notifications.getPermissionsAsync());
+            }
 
-    // Toggle Drawer Visibility
-    const toggleDrawer = () => setVisible(!visible);
+            return status === 'granted';
+        } catch (error) {
+            console.error('Error checking permissions:', error);
+            return false;
+        }
+    };
+
+    const requestPermission = async (permissionType) => {
+        try {
+            let status;
+            if (permissionType === 'camera') {
+                ({ status } = await Camera.requestCameraPermissionsAsync());
+            } else if (permissionType === 'location') {
+                ({ status } = await Location.requestForegroundPermissionsAsync());
+            } else if (permissionType === 'notification') {
+                ({ status } = await Notifications.requestPermissionsAsync());
+            }
+
+            return status === 'granted';
+        } catch (error) {
+            Alert.alert(
+                `Update ${permissionType.charAt(0).toUpperCase() + permissionType.slice(1)} Permission`,
+                `It seems like the app's ${permissionType} permissions were denied previously. To enable this permission, please open your device settings and grant access manually.`,
+                [{ text: "Open Settings", onPress: openSettings }, { text: "Cancel" }]
+            );
+
+            return false;
+        }
+    };
+
+    const updatePermissions = async () => {
+        const cameraGranted = await checkPermission('camera');
+        setIsCameraEnabled(cameraGranted);
+
+        const locationGranted = await checkPermission('location');
+        setIsLocationEnabled(locationGranted);
+
+        const notificationGranted = await checkPermission('notification');
+        setIsNotificationEnabled(notificationGranted);
+    };
+
+    useEffect(() => {
+        updatePermissions();
+    }, []);
+
+    useEffect(() => {
+        if (visible) {
+            updatePermissions();
+        }
+    }, [visible]);
+
+    // Helper function to open app settings
+    const openSettings = async () => {
+        await Linking.openSettings();
+    };
+
+    const handleTogglePermission = async (permissionType) => {
+        const isGranted = await checkPermission(permissionType);
+        if (!isGranted) {
+            const requestGranted = await requestPermission(permissionType);
+            if (permissionType === 'camera') setIsCameraEnabled(requestGranted);
+            if (permissionType === 'location') setIsLocationEnabled(requestGranted);
+            if (permissionType === 'notification') setIsNotificationEnabled(requestGranted);
+        } else {
+            Alert.alert(
+                `Change ${permissionType.charAt(0).toUpperCase() + permissionType.slice(1)} Permission`,
+                `To change ${permissionType} permission, please go to your device settings.`,
+                [{ text: "Open Settings", onPress: openSettings }, { text: "Cancel" }]
+            );
+        }
+    };
+
+    // Rotate cog continuously with a gap
+    const startRotation = () => {
+        rotate.setValue(0);
+        Animated.timing(rotate, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+        }).start(() => {
+            setTimeout(startRotation, 2500);
+        });
+    };
+
+    useEffect(() => {
+        startRotation();
+    }, []);
+
+    const rotation = rotate.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
 
     return (
         <>
-            <TouchableOpacity style={styles.cogIcon} onPress={toggleDrawer}>
-                <MaterialCommunityIcons name="cog" size={30} color="black" />
+            <TouchableOpacity style={styles.cogIconContainer} onPress={() => setVisible(!visible)}>
+                <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+                    <MaterialCommunityIcons name="cog" size={30} color="#4a90e2" />
+                </Animated.View>
             </TouchableOpacity>
 
-            <Modal visible={visible} onDismiss={toggleDrawer} contentContainerStyle={styles.containerStyle}>
+            <Modal visible={visible} onDismiss={() => setVisible(!visible)} contentContainerStyle={styles.containerStyle}>
                 <Text style={styles.modalTitle}>Manage Permissions</Text>
+                <Divider style={styles.divider} />
 
                 <View style={styles.permissionItem}>
                     <Text style={styles.permissionLabel}>Camera</Text>
                     <Switch
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={isCameraEnabled ? "#f5dd4b" : "#f4f3f4"}
-                        onValueChange={toggleCamera}
+                        trackColor={{ false: "#737c7c", true: "#81c784" }}
+                        thumbColor={isCameraEnabled ? "#004d40" : "#595959"}
+                        onValueChange={() => handleTogglePermission('camera')}
                         value={isCameraEnabled}
                     />
                 </View>
@@ -37,17 +143,26 @@ const PermissionDrawer = () => {
                 <View style={styles.permissionItem}>
                     <Text style={styles.permissionLabel}>Location</Text>
                     <Switch
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={isLocationEnabled ? "#f5dd4b" : "#f4f3f4"}
-                        onValueChange={toggleLocation}
+                        trackColor={{ false: "#737c7c", true: "#81c784" }}
+                        thumbColor={isLocationEnabled ? "#004d40" : "#595959"}
+                        onValueChange={() => handleTogglePermission('location')}
                         value={isLocationEnabled}
+                    />
+                </View>
+
+                <View style={styles.permissionItem}>
+                    <Text style={styles.permissionLabel}>Notifications</Text>
+                    <Switch
+                        trackColor={{ false: "#737c7c", true: "#81c784" }}
+                        thumbColor={isNotificationEnabled ? "#004d40" : "#595959"}
+                        onValueChange={() => handleTogglePermission('notification')}
+                        value={isNotificationEnabled}
                     />
                 </View>
             </Modal>
         </>
     );
 };
-
 const styles = StyleSheet.create({
     containerStyle: {
         backgroundColor: 'white',
@@ -78,13 +193,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 15,
     },
-    permissionLabel: {
-        fontSize: 18,
-    },
-    cogIcon: {
+    cogIconContainer: {
         position: 'absolute',
-        left: 20,
-        bottom: 20,
+        right: 20,
+        top: '50%',
+        transform: [{ translateY: -15 }],
+        backgroundColor: 'white',
+        borderRadius: 20,
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
+    },
+    permissionLabel: {
+        fontSize: 15,
+        fontWeight: 'bold',
+    },
+    divider: {
+        marginBottom: 20,
+        color: 'black',
     },
 });
 

@@ -1,9 +1,9 @@
 import {INCOMING_MESSAGE_TYPES} from "../constants/MessageTypes";
 
-export const handleIncomingMessage = (type, data) => {
+export const handleIncomingMessage = (type, data,setFunctions) => {
     switch (type) {
         case INCOMING_MESSAGE_TYPES.IS_DARK_MODE:
-            handleIsDarkMode(data);
+            handleIsDarkMode(data,setFunctions);
             break;
         // Add more cases for other incoming message types
         default:
@@ -11,7 +11,8 @@ export const handleIncomingMessage = (type, data) => {
     }
 };
 
-const handleIsDarkMode = (data) => {
+const handleIsDarkMode = (data,setFunctions) => {
+    console.log("isDarkMode:", data)
     // Logic for handling isDarkMode message
-    console.log("Dark Mode Status:", data);
+    setFunctions.setDarkMode(!!data);
 };
