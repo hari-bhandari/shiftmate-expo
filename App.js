@@ -7,11 +7,12 @@ import {handleIncomingMessage} from "./utils/incomingMessageHandlers";
 import {URI} from "./constants/MessageTypes";
 import { PaperProvider } from 'react-native-paper';
 import PermissionsDrawer from "./components/PermissionsDrawer";
+import { Platform } from 'react-native';
 
 
 const Home = () => {
     const webViewRef = useRef(null);
-    const [darkMode, setDarkMode] = useState(true);
+    const [darkMode, setDarkMode] = useState(false);
     const [expoPushToken, setExpoPushToken] = useState('');
 
     const onWebViewMessage = (event) => {
@@ -61,8 +62,8 @@ const Home = () => {
             />
             <AutoHeightWebView
                 style={{
-                    marginTop: 30,
-                    marginBottom: 10,
+                    marginTop: Platform.OS === 'android' ? 0 : 30,
+                    marginBottom: Platform.OS === 'android' ? 0 : 10,
                     backgroundColor: darkMode ? '#2f3248' : 'white'
                 }}
                 onSizeUpdated={size => console.log(size.height)}
@@ -78,14 +79,12 @@ const Home = () => {
                 originWhitelist={['*']}
                 onMessage={onWebViewMessage}
                 allowFileAccess={true}
-
                 allowsInlineMediaPlayback={true}
                 mediaCapturePermissionGrantType={'grant'}
                 allowUniversalAccessFromFileURLs={true}
                 mixedContentMode={'always'}
                 useWebKit={true}
-                ref={webViewRef} // Assign webview ref to the `webViewRef` while initial rendering
-                userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                ref={webViewRef}
                 cacheEnabled
                 thirdPartyCookiesEnabled
                 allowsProtectedMedia

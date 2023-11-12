@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         top: '50%',
         transform: [{ translateY: -15 }],
         backgroundColor: 'white',
-        borderRadius: 20,
+        borderRadius: "50%",
         width: 50,
         height: 50,
         justifyContent: 'center',
