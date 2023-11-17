@@ -1,6 +1,7 @@
 import {OUTGOING_MESSAGE_TYPES} from "../constants/MessageTypes";
 
 export const sendOutgoingMessage = (webViewRef, type, data) => {
+    console.log(`called sendOutgoingMessage ${type} ${data}`)
     if (webViewRef?.current) {
         const message = { source:'shiftmate',type, data };
         webViewRef.current.postMessage(JSON.stringify(message));
