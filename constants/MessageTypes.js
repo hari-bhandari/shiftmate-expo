@@ -1,5 +1,6 @@
 export const INCOMING_MESSAGE_TYPES = {
     IS_DARK_MODE: 'IS_DARK_MODE',
+    IS_USER_LOGGED_IN: 'IS_USER_LOGGED_IN',
 };
 
 export const OUTGOING_MESSAGE_TYPES = {

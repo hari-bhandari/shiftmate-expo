@@ -16,13 +16,15 @@ const Home = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
     const [notificationToken, setNotificationToken] = useState(null);
-
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const onWebViewMessage = (event) => {
         try {
+
             const {type, data} = JSON.parse(event.nativeEvent.data);
             if (type) {
                 handleIncomingMessage(type, data, {
-                    setDarkMode
+                    setDarkMode,
+                    setIsUserLoggedIn
                 });
             } else {
                 console.log("Message from WebView:", event.nativeEvent.data);
@@ -34,7 +36,7 @@ const Home = () => {
     };
 
     const sendMsgToPWA = () => {
-        if (notificationToken && webViewRef?.current) {
+        if (notificationToken && webViewRef?.current&&isNotificationEnabled&&isUserLoggedIn) {
             sendOutgoingMessage(webViewRef, OUTGOING_MESSAGE_TYPES.EXPO_PUSH_TOKEN, JSON.stringify({
                 notificationToken,
                 deviceName: Device.modelName,

@@ -5,7 +5,9 @@ export const handleIncomingMessage = (type, data,setFunctions) => {
         case INCOMING_MESSAGE_TYPES.IS_DARK_MODE:
             handleIsDarkMode(data,setFunctions);
             break;
-        // Add more cases for other incoming message types
+        case INCOMING_MESSAGE_TYPES.IS_USER_LOGGED_IN:
+            handleIsUserLoggedIn(data,setFunctions);
+            break;
         default:
             console.log(data)
     }
@@ -16,3 +18,8 @@ const handleIsDarkMode = (data,setFunctions) => {
     // Logic for handling isDarkMode message
     setFunctions.setDarkMode(!!data);
 };
+
+const handleIsUserLoggedIn = (data,setFunctions) => {
+    // Logic for handling isUserLoggedIn message
+    setFunctions.setIsUserLoggedIn(data==="true");
+}
